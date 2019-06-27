@@ -93,7 +93,7 @@ abstract class Application
   {
     try {
       $params = $this->router->resolve($this->request->getPathInfo());
-      if ($param === false) {
+      if ($params === false) {
         throw new HttpNotFoundException('No route found for ' . $this->request->getPathInfo());
       }
 
@@ -128,7 +128,7 @@ abstract class Application
 
   protected function findController($controller_class)
   {
-    if (!class_exist($controller_class)) {
+    if (!class_exists($controller_class)) {
       $controller_file = $this->getControllerDir() . '/' . $controller_class . '.php';
     }
 
@@ -137,7 +137,7 @@ abstract class Application
     } else {
       require_once $controller_file;
 
-      if (!class_exist($controller_class)) {
+      if (!class_exists($controller_class)) {
         return false;
       }
     }

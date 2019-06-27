@@ -27,7 +27,7 @@ abstract class Controller
     $this->action_name = $action;
 
     $action_method = $action . 'Action';
-    if (!method_exist($this, $acgtion_method)) {
+    if (!method_exists($this, $action_method)) {
       $this->forward404();
     }
 
@@ -78,47 +78,48 @@ abstract class Controller
     $this->response->setHttpHeader('Location', $url);
   }
 
-  protected function generateCsrfToken($form_name)
-  {
-    $key = 'scrs_tokens/' . $form_name;
-    $tokens = $this->session->get($key, array());
-    if (count($tokens) >= 10) {
-      array_shift($tokens);
+    protected function generateCsrfToken($form_name)
+    {
+        $key = 'csrf_tokens/' . $form_name;
+        $tokens = $this->session->get($key, array());
+        if (count($tokens) >= 10) {
+            array_shift($tokens);
+        }
+
+        $token = sha1($form_name . session_id() . microtime());
+        $tokens[] = $token;
+
+        $this->session->set($key, $tokens);
+
+        return $token;
+    }
+    
+
+    protected function checkCsrfToken($form_name, $token)
+    {
+        $key = 'csrf_tokens/' . $form_name;
+        $tokens = $this->session->get($key, array());
+
+        if (false !== ($pos = array_search($token, $tokens, true))) {
+            unset($tokens[$pos]);
+            $this->session->set($key, $tokens);
+
+            return true;
+        }
+
+        return false;
     }
 
-    $token = sha1($form_name . session_id() . microtime());
-    $tokens[] = $token;
-
-    $this->session->set($key, $tokens);
-
-    return $token;
-  }
-
-  protected function chechCsrfToken($form_name, $token)
-  {
-    $key = 'scrf_tokens/' . $form_name;
-    $tokens = $this->session->get($key, array());
-
-    if (false !== ($pos = array_search($token, $tokens, true))) {
-      unset($tokens[$pos]);
-      $this->session->set($key, $tokens);
-
-      return true;
-    }
-
-    return false;
-  }
 
   protected function needsAuthentication($action)
   {
     if ($this->auth_actions === true
-        || (is_array($this->auth_actions) && in_array($action, $this->auth_actions))
-      ) {
-        return true;
-      }
-
-      return false;
+      || (is_array($this->auth_actions) && in_array($action, $this->auth_actions))
+    ) {
+      return true;
     }
+
+    return false;
   }
 
 }

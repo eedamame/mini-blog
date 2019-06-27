@@ -55,7 +55,7 @@ class DbManager
 
   public function get($repository_name)
   {
-    if (!isset($this->repositoryes[$repository_name])) {
+    if (!isset($this->repositories[$repository_name])) {
       $repository_class = $repository_name . 'Repository';
       $con = $this->getConnectionForRepository($repository_name);
 
@@ -69,7 +69,7 @@ class DbManager
 
   public function __destruct()
   {
-    foreach ($this->repositoryes as $repository) {
+    foreach ($this->repositories as $repository) {
       unset($repository);
     }
 
